@@ -1,0 +1,6 @@
+{
+  "name": "Calalosaurus",
+  "name_raw": "calalosaurus",
+  "sampling": "T=0.5",
+  "model": "B_LSTM_2x256"
+}

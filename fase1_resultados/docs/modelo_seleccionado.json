@@ -1,0 +1,20 @@
+{
+  "config": {
+    "name": "B_LSTM_2x256",
+    "arch": "LSTM",
+    "num_layers": 2,
+    "hidden_size": 256,
+    "emb_dim": 64,
+    "dropout": 0.3,
+    "epochs": 60,
+    "batch_size": 64,
+    "lr": 0.002,
+    "loss": "CrossEntropy (ignore_index=<PAD>)",
+    "optimizer": "Adam"
+  },
+  "parametros": 865373,
+  "mejor_epoca": 13,
+  "mejor_val": 1.5712523926701538,
+  "T": 24,
+  "vocab_size": 29
+}

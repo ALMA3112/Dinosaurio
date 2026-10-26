@@ -1,0 +1,3 @@
+configuracion,arquitectura,capas,estado_oculto,emb_dim,dropout,epocas,batch,lr,funcion_perdida,optimizador,parametros,train_final,val_final,mejor_val,mejor_epoca
+A_GRU_1x128,GRU,1,128,32,0.0,60,64,0.003,CrossEntropy (ignore_index=<PAD>),Adam,66877,0.6603,2.2001,1.5793,13
+B_LSTM_2x256,LSTM,2,256,64,0.3,60,64,0.002,CrossEntropy (ignore_index=<PAD>),Adam,865373,0.6825,2.1506,1.5713,13
