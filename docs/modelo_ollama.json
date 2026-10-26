@@ -1,0 +1,10 @@
+{
+  "modelo": "mistral:7b",
+  "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+  "family": "llama",
+  "parameter_size": "7.2B",
+  "quantization_level": "Q4_K_M",
+  "ollama_version": "0.40.11",
+  "instancia": "ml.m5.xlarge (CPU)",
+  "fecha_utc": "2026-10-26T22:16:15+00:00"
+}

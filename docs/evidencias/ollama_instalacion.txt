@@ -1,0 +1,9 @@
+Fecha (UTC): Mon Oct 26 21:51:43 UTC 2026
+Version de Ollama: {"version":"0.40.11"}
+Imagen: ollama/ollama:latest sha256:5aefd07598b55ea910b65abe42d1b5ad8ce3311d35b598c16586a318b5294459
+Docker Root Dir: /home/ec2-user/SageMaker/docker
+
+NAME           ID              SIZE      MODIFIED               
+mistral:7b     6577803aa9a0    4.4 GB    Less than a second ago    
+qwen2.5:7b     845dbda0ea48    4.7 GB    44 seconds ago            
+llama3.1:8b    46e0c10c039e    4.9 GB    About a minute ago        

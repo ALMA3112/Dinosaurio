@@ -1,0 +1,56 @@
+{
+  "mistral:7b": {
+    "ok": true,
+    "intentos": 1,
+    "metrics": {
+      "eval_count": 506,
+      "tokens_s": 2.929528716178388,
+      "load_s": 33.431381907,
+      "wall_s": 237.74463391304016
+    },
+    "campos": {
+      "apariencia": "El Calalosaurus posee una apariencia imponente, con un cuerpo alargado y una cola larga y robusta. Su espalda presenta una cresta dorsal prominente, similar a las colas de las mariposas. Sus patas delanteras tienen dedos con garras afiladas y largas, mientras que las patas traseras son más cortas y más fuertes para soportar su peso.",
+      "habitat": "El Calalosaurus se encuentra en los bosques húmedos y densos de la época del Cretácico Superior. Su hábitat está lleno de árboles altos y estrechos que le proporcionan abundante cobertura para esconderse de los depredadores. También vive cerca de corrientes de agua y lagos, donde se alimenta de las especies acuáticas.",
+      "alimentacion": "Se alimenta principalmente de las especies acuáticas encontradas en sus hábitats, como los peces y las tortugas marinas. También come plantas acuáticas y algunas especies terrestres como los pterosaurios. Su dentadura curva y afilada le permite cortar y tragar a sus presas sin dificultad.",
+      "comportamiento": "El Calalosaurus es un depredador solitario y territorial. A diferencia de otros dinosaurios, suelen vivir cerca de las aguas. A menudo se esconden en el sotobosque y atacan a sus presas cuando estas se acercan. También se han observado comportamientos agresivos entre los machos durante la temporada de apareamiento, luchando por el control de los territorios.",
+      "caracteristica_distintiva": "La característica distintiva del Calalosaurus es su cresta dorsal, que le proporciona una apariencia imponente y le permite intimidar a sus rivales. Además, su dentadura y su hábitat le permiten ser un depredador eficiente en su medio ambiente."
+    },
+    "descripcion": "Apariencia: El Calalosaurus posee una apariencia imponente, con un cuerpo alargado y una cola larga y robusta. Su espalda presenta una cresta dorsal prominente, similar a las colas de las mariposas. Sus patas delanteras tienen dedos con garras afiladas y largas, mientras que las patas traseras son más cortas y más fuertes para soportar su peso.\nHábitat: El Calalosaurus se encuentra en los bosques húmedos y densos de la época del Cretácico Superior. Su hábitat está lleno de árboles altos y estrechos que le proporcionan abundante cobertura para esconderse de los depredadores. También vive cerca de corrientes de agua y lagos, donde se alimenta de las especies acuáticas.\nAlimentación: Se alimenta principalmente de las especies acuáticas encontradas en sus hábitats, como los peces y las tortugas marinas. También come plantas acuáticas y algunas especies terrestres como los pterosaurios. Su dentadura curva y afilada le permite cortar y tragar a sus presas sin dificultad.\nComportamiento: El Calalosaurus es un depredador solitario y territorial. A diferencia de otros dinosaurios, suelen vivir cerca de las aguas. A menudo se esconden en el sotobosque y atacan a sus presas cuando estas se acercan. También se han observado comportamientos agresivos entre los machos durante la temporada de apareamiento, luchando por el control de los territorios.\nCaracterística distintiva: La característica distintiva del Calalosaurus es su cresta dorsal, que le proporciona una apariencia imponente y le permite intimidar a sus rivales. Además, su dentadura y su hábitat le permiten ser un depredador eficiente en su medio ambiente."
+  },
+  "qwen2.5:7b": {
+    "ok": true,
+    "intentos": 1,
+    "metrics": {
+      "eval_count": 355,
+      "tokens_s": 3.1593980575985143,
+      "load_s": 35.701733624,
+      "wall_s": 172.22406840324402
+    },
+    "campos": {
+      "apariencia": "Calalosaurus presenta una cuello largo y elegante, con escamas brillantes de colores que cambian con el estado emocional del dinosaurio, lo que lo hace parecer un verdadero artista del color. Su cuerpo es robusto pero no voluminoso, con patas fuertes y largas, perfectas para la carrera y la exploración.",
+      "habitat": "Vive en una variedad de hábitats, desde los bosques húmedos hasta las orillas de los ríos, lo que le permite adaptarse a diferentes condiciones ambientales. Su apariencia y comportamiento sugieren que prefiere áreas con vegetación rica y abundante.",
+      "alimentacion": "Es un herbívoro, con una dentadura de hoja en la mandíbula superior y caninos afilados en la inferior, lo que indica que puede comer hojas y ramas pesadas, pero también puede husmear en el suelo en busca de frutos y brotes.",
+      "comportamiento": "Calalosaurus se muestra socialmente, a menudo se ve en grupos pequeños o parejas, con un comportamiento protector y cuidadoso hacia sus jóvenes. Es curioso y explorador, siempre dispuesto a descubrir nuevos terrenos.",
+      "caracteristica_distintiva": "Su más destacada característica es su capacidad para cambiar de color, lo que le permite comunicarse con otros dinosaurios o camuflarse en su entorno, una habilidad única que lo hace especialmente interesante en la vida social y en la supervivencia."
+    },
+    "descripcion": "Apariencia: Calalosaurus presenta una cuello largo y elegante, con escamas brillantes de colores que cambian con el estado emocional del dinosaurio, lo que lo hace parecer un verdadero artista del color. Su cuerpo es robusto pero no voluminoso, con patas fuertes y largas, perfectas para la carrera y la exploración.\nHábitat: Vive en una variedad de hábitats, desde los bosques húmedos hasta las orillas de los ríos, lo que le permite adaptarse a diferentes condiciones ambientales. Su apariencia y comportamiento sugieren que prefiere áreas con vegetación rica y abundante.\nAlimentación: Es un herbívoro, con una dentadura de hoja en la mandíbula superior y caninos afilados en la inferior, lo que indica que puede comer hojas y ramas pesadas, pero también puede husmear en el suelo en busca de frutos y brotes.\nComportamiento: Calalosaurus se muestra socialmente, a menudo se ve en grupos pequeños o parejas, con un comportamiento protector y cuidadoso hacia sus jóvenes. Es curioso y explorador, siempre dispuesto a descubrir nuevos terrenos.\nCaracterística distintiva: Su más destacada característica es su capacidad para cambiar de color, lo que le permite comunicarse con otros dinosaurios o camuflarse en su entorno, una habilidad única que lo hace especialmente interesante en la vida social y en la supervivencia."
+  },
+  "llama3.1:8b": {
+    "ok": true,
+    "intentos": 1,
+    "metrics": {
+      "eval_count": 411,
+      "tokens_s": 2.8480252759402145,
+      "load_s": 37.722473102,
+      "wall_s": 208.07302355766296
+    },
+    "campos": {
+      "apariencia": "El Calalosaurus posee una armadura ósea protectora que cubre su espalda y su cuello, con placas óseas triangulares que se asemejan a escamas de lagarto. Su cola es larga y robusta, y su cuello es flexible, permitiéndole girar su cabeza con facilidad. Su cuerpo es de tamaño mediano, con un peso aproximado de 3 toneladas.",
+      "habitat": "El Calalosaurus es un habitante de las regiones áridas y semiáridas, donde la vegetación es escasa y seca. Se encuentra en áreas con rocas y canteras, donde puede utilizar sus garras para cavar y buscar alimento.",
+      "alimentacion": "El Calalosaurus es un herbívoro que se alimenta de plantas y frutas que crecen en las zonas áridas. Utiliza sus dientes afilados y sus garras para raer raíces y buscar alimentos en las rocas y las canteras.",
+      "comportamiento": "El Calalosaurus es un animal solitario y territorial, que defiende su territorio de otros Calalosaurus. Es un animal cauteloso y alerta, que utiliza su armadura ósea y su cuello flexible para defenderse de posibles depredadores.",
+      "caracteristica_distintiva": "La característica distintiva del Calalosaurus es su capacidad para cavar y buscar alimento en las rocas y las canteras, utilizando sus garras y su cuello flexible. Esta habilidad le permite sobrevivir en áreas con escasa vegetación y recursos alimenticios, lo que lo convierte en un adaptador eficiente en entornos áridos y semiáridos."
+    },
+    "descripcion": "Apariencia: El Calalosaurus posee una armadura ósea protectora que cubre su espalda y su cuello, con placas óseas triangulares que se asemejan a escamas de lagarto. Su cola es larga y robusta, y su cuello es flexible, permitiéndole girar su cabeza con facilidad. Su cuerpo es de tamaño mediano, con un peso aproximado de 3 toneladas.\nHábitat: El Calalosaurus es un habitante de las regiones áridas y semiáridas, donde la vegetación es escasa y seca. Se encuentra en áreas con rocas y canteras, donde puede utilizar sus garras para cavar y buscar alimento.\nAlimentación: El Calalosaurus es un herbívoro que se alimenta de plantas y frutas que crecen en las zonas áridas. Utiliza sus dientes afilados y sus garras para raer raíces y buscar alimentos en las rocas y las canteras.\nComportamiento: El Calalosaurus es un animal solitario y territorial, que defiende su territorio de otros Calalosaurus. Es un animal cauteloso y alerta, que utiliza su armadura ósea y su cuello flexible para defenderse de posibles depredadores.\nCaracterística distintiva: La característica distintiva del Calalosaurus es su capacidad para cavar y buscar alimento en las rocas y las canteras, utilizando sus garras y su cuello flexible. Esta habilidad le permite sobrevivir en áreas con escasa vegetación y recursos alimenticios, lo que lo convierte en un adaptador eficiente en entornos áridos y semiáridos."
+  }
+}
