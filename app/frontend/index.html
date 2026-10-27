@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isla de los Dinosaurios</title>
+<style>
+:root{--bg:#0e1512;--card:#16211b;--card2:#1c2a22;--text:#e8efe9;--muted:#9db0a3;--accent:#e9a23b;--ok:#4fb286;--bad:#e5645b;--line:#27382e}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(1200px 600px at 10% -10%,#183024 0,var(--bg) 60%);color:var(--text);
+ font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding:18px clamp(14px,4vw,40px)}
+h1{margin:0;font-size:clamp(1.3rem,3vw,1.9rem);letter-spacing:.3px}
+h1 span{color:var(--accent)}
+.right{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:4px 12px;font-size:.82rem;cursor:pointer}
+.pill::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin-right:7px}
+.pill.ok::before{background:var(--ok)}.pill.bad::before{background:var(--bad)}
+button.primary{background:var(--accent);color:#1c1405;border:0;border-radius:10px;padding:10px 18px;font-weight:700;font-size:1rem;cursor:pointer}
+button.primary:hover:not(:disabled){filter:brightness(1.08)}
+button:disabled{opacity:.55;cursor:not-allowed}
+main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;padding:0 clamp(14px,4vw,40px) 40px}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.imgwrap{position:relative;width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--card2)}
+#dinoImg{width:100%;height:100%;object-fit:cover;display:block}
+.skeleton{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:var(--muted);
+ background:linear-gradient(100deg,var(--card2) 30%,#25362b 50%,var(--card2) 70%);background-size:200% 100%;animation:sh 1.4s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+h2{margin:14px 0 2px;font-size:1.8rem;color:var(--accent)}
+.muted{color:var(--muted);font-size:.9rem;margin:0 0 10px}
+#progress{margin:10px 0;padding:12px 14px;background:var(--card2);border-radius:12px}
+#progress ol{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+#progress li{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:.93rem}
+#progress li .dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--muted);flex:none}
+#progress li.active{color:var(--text)}#progress li.active .dot{border-color:var(--accent);background:var(--accent);animation:pulse 1s infinite}
+#progress li.done{color:var(--text)}#progress li.done .dot{border-color:var(--ok);background:var(--ok)}
+#progress li.error{color:var(--bad)}#progress li.error .dot{border-color:var(--bad);background:var(--bad)}
+@keyframes pulse{50%{opacity:.35}}
+dl{margin:12px 0 0}dt{font-weight:700;color:var(--accent);margin-top:12px;font-size:.9rem;text-transform:uppercase;letter-spacing:.5px}
+dd{margin:2px 0 0}
+details{margin-top:16px;background:var(--card2);border-radius:12px;padding:10px 14px}
+summary{cursor:pointer;font-weight:600}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.9rem}
+td{padding:4px 0;border-top:1px solid var(--line);vertical-align:top}td:first-child{color:var(--muted);width:46%;padding-right:8px}
+.chat{display:flex;flex-direction:column;min-height:0}
+.chat h3{margin:0 0 10px}
+#msgs{flex:1;min-height:340px;max-height:620px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px}
+.msg{max-width:88%;padding:10px 13px;border-radius:14px;white-space:pre-wrap;word-wrap:break-word}
+.msg.assistant{align-self:flex-start;background:var(--card2);border-top-left-radius:4px}
+.msg.user{align-self:flex-end;background:#2c5a45;border-top-right-radius:4px}
+.msg.error{align-self:center;background:#3a1f1d;color:#ffb4ad;font-size:.9rem}
+.msg img{display:block;width:min(260px,100%);border-radius:10px;margin-bottom:8px}
+.typing{color:var(--muted);font-style:italic}
+form{display:flex;gap:8px;margin-top:12px}
+input[type=text]{flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;font-size:1rem}
+input:focus,button:focus-visible,summary:focus-visible,.pill:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#3a1f1d;color:#ffb4ad;border:1px solid #6b3430;padding:10px 16px;border-radius:10px;max-width:min(92vw,560px);display:none;z-index:5}
+</style>
+</head>
+<body>
+<header>
+  <h1>Isla de los <span>Dinosaurios</span></h1>
+  <div class="right">
+    <button class="pill" id="pillOllama" title="Estado de Ollama (clic para revisar)">Ollama</button>
+    <button class="pill" id="pillImagen" title="Estado del generador de imágenes (clic para revisar)">Imágenes</button>
+    <button class="primary" id="btnNuevo">Nuevo Dinosaurio</button>
+  </div>
+</header>
+
+<main>
+  <section class="card" aria-live="polite">
+    <div class="imgwrap">
+      <img id="dinoImg" alt="" hidden>
+      <div class="skeleton" id="imgSkeleton">Cargando dinosaurio…</div>
+    </div>
+    <h2 id="dinoNombre">…</h2>
+    <p class="muted" id="dinoSub"></p>
+    <div id="progress" hidden><ol id="steps"></ol></div>
+    <dl id="campos"></dl>
+    <details>
+      <summary>Modelo que creó el nombre</summary>
+      <table id="modeloTabla"></table>
+    </details>
+  </section>
+
+  <section class="card chat">
+    <h3>Chat con <span id="chatNombre">…</span></h3>
+    <div id="msgs" aria-live="polite"></div>
+    <form id="chatForm" autocomplete="off">
+      <input type="text" id="chatInput" placeholder="Escribe un mensaje…" maxlength="500" aria-label="Mensaje" disabled>
+      <button class="primary" id="btnEnviar" disabled>Enviar</button>
+    </form>
+  </section>
+</main>
+<div id="toast" role="alert"></div>
+
+<script>
+const API_BASE = '';   // mismo origen (servidor local o Lambda). Si el frontend se aloja aparte, ponga aquí la URL del backend.
+const LABELS = {apariencia:'Apariencia', habitat:'Hábitat', alimentacion:'Alimentación',
+                comportamiento:'Comportamiento', caracteristica_distintiva:'Característica distintiva'};
+const STEPS = ['Nombre (modelo de caracteres)', 'Identidad (Ollama)', 'Imagen (Stable Diffusion XL)', 'Presentación (Ollama)'];
+const state = {dino: null, imageSrc: null, chat: [], busy: false, chatBusy: false, usados: []};
+const $ = id => document.getElementById(id);
+
+async function api(path, body, timeoutMs = 900000) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    const r = await fetch(API_BASE + path, {
+      method: body === undefined ? 'GET' : 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: ctl.signal
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || ('Error ' + r.status));
+    return data;
+  } catch (e) {
+    if (e.name === 'AbortError') throw new Error('La solicitud tardó demasiado.');
+    throw e;
+  } finally { clearTimeout(timer); }
+}
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = 'none', 9000);
+}
+
+/* ---------- estado de los servicios ---------- */
+async function checkEstado() {
+  for (const id of ['pillOllama', 'pillImagen']) $(id).className = 'pill';
+  try {
+    const e = await api('/api/estado', undefined, 30000);
+    const o = e.ollama || {}, i = e.imagen || {};
+    $('pillOllama').className = 'pill ' + (o.ok && o.modelo_instalado ? 'ok' : 'bad');
+    $('pillOllama').textContent = 'Ollama · ' + e.modelo_ollama;
+    $('pillOllama').title = o.ok ? (o.modelo_instalado ? 'Ollama ' + o.version : 'Ollama responde, pero el modelo no está instalado') : (o.error || 'Sin conexión');
+    $('pillImagen').className = 'pill ' + (i.ok ? 'ok' : 'bad');
+    $('pillImagen').textContent = 'Imágenes' + (i.ok ? '' : ' · sin conexión');
+    $('pillImagen').title = i.ok ? ('Modelo: ' + i.modelo) : (i.error || 'Sin conexión');
+  } catch (err) { toast('No se pudo consultar el estado: ' + err.message); }
+}
+
+/* ---------- tarjeta del dinosaurio ---------- */
+function renderCampos(campos) {
+  const dl = $('campos'); dl.replaceChildren();
+  if (!campos) return;
+  for (const k of Object.keys(LABELS)) {
+    if (!campos[k]) continue;
+    const dt = document.createElement('dt'); dt.textContent = LABELS[k];
+    const dd = document.createElement('dd'); dd.textContent = campos[k];
+    dl.append(dt, dd);
+  }
+}
+function fmtMuestreo(m) {
+  if (!m) return '—';
+  if (typeof m === 'string') return m;
+  const p = ['T=' + m.temperature];
+  if (m.top_k) p.push('top-k=' + m.top_k);
+  if (m.top_p) p.push('top-p=' + m.top_p);
+  return p.join(', ');
+}
+function renderModelo(m, muestreo) {
+  const n = v => (v === null || v === undefined) ? '—' : (typeof v === 'number' ? v.toLocaleString('es') : v);
+  const filas = [
+    ['Configuración', m.configuracion], ['Arquitectura', m.arquitectura], ['Capas', m.capas],
+    ['Estado oculto', m.estado_oculto], ['Parámetros', m.parametros], ['Épocas de entrenamiento', m.epocas],
+    ['Optimizador', m.optimizador], ['Función de pérdida', m.funcion_perdida],
+    ['Mejor pérdida de validación', m.mejor_perdida_validacion != null ? Number(m.mejor_perdida_validacion).toFixed(3) + ' (época ' + n(m.mejor_epoca) + ')' : '—'],
+    ['Vocabulario (tokens)', m.vocabulario], ['Longitud máxima T', m.longitud_maxima_T],
+    ['Muestreo usado para este nombre', fmtMuestreo(muestreo)]
+  ];
+  const t = $('modeloTabla'); t.replaceChildren();
+  for (const [k, v] of filas) {
+    const tr = document.createElement('tr');
+    const a = document.createElement('td'); a.textContent = k;
+    const b = document.createElement('td'); b.textContent = n(v);
+    tr.append(a, b); t.append(tr);
+  }
+}
+function showImage(src) {
+  const img = $('dinoImg');
+  if (!src) { img.hidden = true; $('imgSkeleton').hidden = false; return; }
+  img.src = src; img.alt = 'Imagen de ' + (state.dino ? state.dino.nombre : 'dinosaurio'); img.hidden = false; $('imgSkeleton').hidden = true;
+}
+function setHeader(nombre, sub) {
+  $('dinoNombre').textContent = nombre; $('chatNombre').textContent = nombre; $('dinoSub').textContent = sub || '';
+}
+
+/* ---------- progreso ---------- */
+function initSteps() {
+  const ol = $('steps'); ol.replaceChildren();
+  STEPS.forEach((s, i) => {
+    const li = document.createElement('li'); li.id = 'step' + i;
+    const dot = document.createElement('span'); dot.className = 'dot';
+    const tx = document.createElement('span'); tx.textContent = s;
+    li.append(dot, tx); ol.append(li);
+  });
+  $('progress').hidden = false;
+}
+function setStep(i, st) { const li = $('step' + i); if (li) li.className = st; }
+
+/* ---------- chat ---------- */
+function addMsg(role, text, withImage) {
+  const d = document.createElement('div'); d.className = 'msg ' + role;
+  if (withImage && state.imageSrc) { const im = document.createElement('img'); im.src = state.imageSrc; im.alt = 'Imagen de ' + state.dino.nombre; d.append(im); }
+  const p = document.createElement('span'); p.textContent = text; d.append(p);
+  $('msgs').append(d); $('msgs').scrollTop = $('msgs').scrollHeight; return d;
+}
+function typing() { return addMsg('assistant typing', 'escribiendo…'); }
+function updateChatEnabled() {
+  const ok = state.dino && state.dino.descripcion && !state.busy && !state.chatBusy;
+  $('chatInput').disabled = !ok; $('btnEnviar').disabled = !ok;
+}
+async function presentar() {
+  const t = typing(); state.chatBusy = true; updateChatEnabled();
+  try {
+    const r = await api('/api/chat', {nombre: state.dino.nombre, descripcion: state.dino.descripcion, messages: [], intro: true});
+    t.remove(); addMsg('assistant', r.reply, r.show_image); state.chat.push({role: 'assistant', content: r.reply});
+  } catch (e) {
+    t.remove(); addMsg('error', 'No pude conectar con Ollama para la presentación: ' + e.message);
+    addMsg('assistant', 'Soy ' + state.dino.nombre + '.', true);
+  } finally { state.chatBusy = false; updateChatEnabled(); }
+}
+$('chatForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const txt = $('chatInput').value.trim();
+  if (!txt || state.busy || state.chatBusy || !state.dino || !state.dino.descripcion) return;
+  $('chatInput').value = ''; addMsg('user', txt); state.chat.push({role: 'user', content: txt});
+  state.chatBusy = true; updateChatEnabled(); const t = typing();
+  try {
+    const r = await api('/api/chat', {nombre: state.dino.nombre, descripcion: state.dino.descripcion, messages: state.chat.slice(-8)});
+    t.remove(); addMsg('assistant', r.reply, r.show_image); state.chat.push({role: 'assistant', content: r.reply});
+  } catch (e) {
+    t.remove(); state.chat.pop(); addMsg('error', 'Error: ' + e.message);
+  } finally { state.chatBusy = false; updateChatEnabled(); $('chatInput').focus(); }
+});
+
+/* ---------- carga inicial: dinosaurio guardado de las fases 1-4 ---------- */
+async function init() {
+  checkEstado();
+  try {
+    const d = await api('/api/dinosaurio-inicial', undefined, 30000);
+    state.dino = {nombre: d.nombre, campos: d.campos, descripcion: d.descripcion};
+    state.imageSrc = d.imagen_url; state.usados.push(d.nombre);
+    setHeader(d.nombre, 'Dinosaurio guardado · descripción de ' + d.modelo_ollama + ' · imagen de ' + (d.modelo_imagen || 'modelo de imágenes'));
+    renderCampos(d.campos); renderModelo(d.modelo_caracteres, d.muestreo_nombre); showImage(d.imagen_url);
+    updateChatEnabled(); presentar();
+  } catch (e) { toast(e.message); $('dinoNombre').textContent = 'Sin dinosaurio'; }
+}
+
+/* ---------- Nuevo Dinosaurio: nombre -> identidad -> imagen -> presentación (sin reentrenar) ---------- */
+async function nuevoDino() {
+  if (state.busy) return;
+  state.busy = true; $('btnNuevo').disabled = true; updateChatEnabled();
+  state.chat = []; $('msgs').replaceChildren(); initSteps();
+  let paso = 0;
+  try {
+    setStep(0, 'active');
+    const n = await api('/api/nombre', {excluir: state.usados});
+    state.usados.push(n.nombre); setStep(0, 'done');
+    state.dino = {nombre: n.nombre, campos: null, descripcion: null}; state.imageSrc = null;
+    setHeader(n.nombre, 'Generando identidad e imagen… puede tardar unos minutos.');
+    renderCampos(null); renderModelo(n.modelo_caracteres, n.muestreo); showImage(null);
+    $('imgSkeleton').textContent = 'Creando a ' + n.nombre + '…';
+
+    paso = 1; setStep(1, 'active');
+    const id = await api('/api/identidad', {nombre: n.nombre});
+    state.dino = {nombre: id.nombre, campos: id.campos, descripcion: id.descripcion};
+    renderCampos(id.campos); setStep(1, 'done');
+
+    paso = 2; setStep(2, 'active');
+    const im = await api('/api/imagen', {nombre: n.nombre, campos: id.campos});
+    state.imageSrc = 'data:' + im.mime + ';base64,' + im.image_base64; showImage(state.imageSrc); setStep(2, 'done');
+    setHeader(n.nombre, 'Descripción de ' + id.modelo_ollama + ' · imagen generada una sola vez y reutilizada en el chat');
+
+    paso = 3; setStep(3, 'active');
+    state.busy = false; await presentar(); setStep(3, 'done');
+  } catch (e) {
+    setStep(paso, 'error'); toast('Falló un paso: ' + e.message + ' — pulse «Nuevo Dinosaurio» para reintentar.');
+    if (state.dino && !state.dino.descripcion) $('imgSkeleton').textContent = 'No se pudo completar. Intente de nuevo.';
+  } finally {
+    state.busy = false; $('btnNuevo').disabled = false; updateChatEnabled();
+    setTimeout(() => { if (!document.querySelector('#steps .error')) $('progress').hidden = true; }, 4000);
+  }
+}
+$('btnNuevo').addEventListener('click', nuevoDino);
+$('pillOllama').addEventListener('click', checkEstado);
+$('pillImagen').addEventListener('click', checkEstado);
+init();
+</script>
+</body>
+</html>

@@ -48,12 +48,12 @@ def _request(path, payload=None, url=None, timeout=900):
                           "¿Está corriendo el contenedor? Ejecute ollama_setup/01_instalar_ollama.sh")
 
 
-def version(url=None):
-    return _request("/api/version", url=url, timeout=30)["version"]
+def version(url=None, timeout=30):
+    return _request("/api/version", url=url, timeout=timeout)["version"]
 
 
-def list_models(url=None):
-    return _request("/api/tags", url=url, timeout=30).get("models", [])
+def list_models(url=None, timeout=30):
+    return _request("/api/tags", url=url, timeout=timeout).get("models", [])
 
 
 def info_modelo(modelo, url=None):
@@ -86,11 +86,11 @@ def generate(modelo, prompt, system=None, fmt=None, temperature=0.7, num_predict
     return r
 
 
-def chat(modelo, messages, system=None, temperature=0.7, num_predict=350, keep_alive="10m", url=None):
+def chat(modelo, messages, system=None, temperature=0.6, num_predict=250, keep_alive="30m", num_ctx=2048, url=None):
     """Conversacion (Fase 5). `system` lleva la identidad del dinosaurio como contexto."""
     msgs = ([{"role": "system", "content": system}] if system else []) + list(messages)
     payload = {"model": modelo, "messages": msgs, "stream": False, "keep_alive": keep_alive,
-               "options": {"temperature": temperature, "num_predict": num_predict, "num_ctx": 2048}}
+               "options": {"temperature": temperature, "num_predict": num_predict, "num_ctx": num_ctx}}
     return _request("/api/chat", payload, url=url)["message"]["content"]
 
 
@@ -171,3 +171,45 @@ def generar_identidad(nombre, modelo, temperature=0.7, seed=42, max_intentos=3, 
                     "raw": r.get("response", ""), "intentos": i, "metrics": _metrics(r), "total_s": total}
     return {"ok": False, "modelo": modelo, "campos": {}, "descripcion": ultimo.get("response", "").strip(),
             "raw": ultimo.get("response", ""), "intentos": max_intentos, "metrics": _metrics(ultimo), "total_s": total}
+
+
+# ---------------------------------------------------------------- prompt de imagen (Fase 5)
+SYSTEM_PROMPT_IMAGEN = ("You write short English prompts for a text-to-image model (Stable Diffusion XL). "
+                        "Output ONLY the prompt, on a single line, without quotes or explanations.")
+PROMPT_IMAGEN_FINAL = "highly detailed paleoart, natural lighting"
+
+
+def build_image_prompt_request(nombre, campos):
+    return (
+        f"Dinosaur name: {nombre}\n"
+        "Spanish description of the animal:\n"
+        f"- Apariencia: {campos.get('apariencia', '')}\n"
+        f"- Hábitat: {campos.get('habitat', '')}\n"
+        f"- Característica distintiva: {campos.get('caracteristica_distintiva', '')}\n\n"
+        f"Write ONE English prompt of at most 40 words that starts with the name \"{nombre}\", then says it is a dinosaur, "
+        "then \"full body side view\", then its main VISIBLE traits (body shape, tail, skin or feathers, crest, claws, teeth, "
+        "limbs), then its habitat, and ends with \"" + PROMPT_IMAGEN_FINAL + "\". "
+        "Describe only what can be seen: no behavior, no diet, no names of other animals."
+    )
+
+
+def limpiar_prompt_imagen(texto, nombre, max_chars=300):
+    """Deja el prompt en una linea, sin comillas, con el nombre al inicio y dentro del limite de CLIP (77 tokens)."""
+    t = (texto or "").strip().splitlines()[0] if (texto or "").strip() else ""
+    t = t.strip(" \"'`*")
+    t = re.sub(r"^(prompt|output)\s*:\s*", "", t, flags=re.I).strip(" \"'`*")
+    if not t:
+        return f"{nombre}, a dinosaur, full body side view, {PROMPT_IMAGEN_FINAL}"
+    if nombre.lower() not in t.lower():
+        t = f"{nombre}, {t}"
+    if len(t) > max_chars:
+        cut = t[:max_chars]
+        t = cut[: cut.rfind(",")] if "," in cut else cut
+        t = f"{t}, {PROMPT_IMAGEN_FINAL}"
+    return t
+
+
+def generar_prompt_imagen(nombre, campos, modelo, temperature=0.3, url=None):
+    r = generate(modelo, build_image_prompt_request(nombre, campos), system=SYSTEM_PROMPT_IMAGEN,
+                 temperature=temperature, num_predict=110, seed=11, url=url)
+    return limpiar_prompt_imagen(r.get("response", ""), nombre)
