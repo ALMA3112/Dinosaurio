@@ -1,0 +1,13 @@
+{
+  "nombre": "Calalosaurus",
+  "archivo": "image_gen/imagenes/calalosaurus.png",
+  "modelo": "stabilityai/stable-diffusion-xl-base-1.0",
+  "prompt": "Calalosaurus, a carnivorous dinosaur, full body side view, long body and long thick tail, tall ornate dorsal crest, long sharp claws on the forelimbs, short strong hind legs, curved sharp teeth, beside a lake in a dense humid Cretaceous forest, highly detailed paleoart, natural lighting",
+  "negative_prompt": "cartoon, anime, 3d render, blurry, lowres, deformed, extra limbs, extra heads, text, watermark, human",
+  "seed": 0,
+  "steps": 30,
+  "guidance": 7.0,
+  "scheduler": "DPM++ 2M Karras",
+  "resolucion": "1024x1024",
+  "gpu": "Tesla T4"
+}
