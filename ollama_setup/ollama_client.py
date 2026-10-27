@@ -213,3 +213,59 @@ def generar_prompt_imagen(nombre, campos, modelo, temperature=0.3, url=None):
     r = generate(modelo, build_image_prompt_request(nombre, campos), system=SYSTEM_PROMPT_IMAGEN,
                  temperature=temperature, num_predict=110, seed=11, url=url)
     return limpiar_prompt_imagen(r.get("response", ""), nombre)
+
+
+# ---------------------------------------------------------------- version rapida para la app (Fase 5)
+def build_identity_prompt_app(nombre):
+    """Identidad breve + prompt de imagen en una sola llamada (menos tokens = mas rapido)."""
+    return (
+        f'Se ha creado una nueva especie de dinosaurio ficticia llamada "{nombre}".\n'
+        "Inventa su identidad. Los nombres reales combinan raíces griegas (-saurus lagarto, -raptor ladrón veloz, "
+        f'-odon diente, -venator cazador); usa el comienzo y el final de "{nombre}" como inspiración.\n'
+        "Reglas: rasgos coherentes entre sí (dieta acorde a dentadura y tamaño; hábitat acorde a apariencia y "
+        "comportamiento). No menciones que es ficticia. Sé breve.\n"
+        "Responde SOLO con un objeto JSON con estas seis claves. Las cinco primeras en español, cada valor de 1 a 2 "
+        "frases (máximo 30 palabras):\n"
+        '{"apariencia": "...", "habitat": "...", "alimentacion": "...", "comportamiento": "...", '
+        '"caracteristica_distintiva": "...", "prompt_imagen": "..."}\n'
+        f'"prompt_imagen" va en inglés, máximo 40 palabras: empieza con "{nombre}", luego "a dinosaur", '
+        '"full body side view", sus rasgos VISIBLES (forma del cuerpo, cola, piel o plumas, cresta, garras, dientes), '
+        'su hábitat, y termina con "' + PROMPT_IMAGEN_FINAL + '". Sin comportamiento ni dieta.'
+    )
+
+
+def _prompt_de_json(texto):
+    m = re.search(r"\{.*\}", texto or "", re.S)
+    if not m:
+        return None
+    try:
+        d = json.loads(m.group(0))
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(d, dict):
+        return None
+    v = {_norm(k): x for k, x in d.items()}.get("prompt_imagen")
+    return v.strip() if isinstance(v, str) and len(v.strip()) >= 15 else None
+
+
+def generar_identidad_app(nombre, modelo, temperature=0.7, seed=42, max_intentos=3, url=None):
+    prompt = build_identity_prompt_app(nombre)
+    total, ultimo = 0.0, {}
+    for i in range(1, max_intentos + 1):
+        r = generate(modelo, prompt, system=SYSTEM_IDENTIDAD, fmt="json", temperature=temperature,
+                     num_predict=450, seed=seed + i - 1, url=url)
+        total += r.get("wall_s", 0.0)
+        ultimo = r
+        campos = parse_campos(r.get("response", ""))
+        if campos:
+            p = _prompt_de_json(r["response"])
+            return {"ok": True, "modelo": modelo, "campos": campos, "descripcion": armar_descripcion(campos),
+                    "prompt_imagen": limpiar_prompt_imagen(p, nombre) if p else None,
+                    "intentos": i, "metrics": _metrics(r), "total_s": total}
+    return {"ok": False, "modelo": modelo, "campos": {}, "descripcion": "", "prompt_imagen": None,
+            "intentos": max_intentos, "metrics": _metrics(ultimo), "total_s": total}
+
+
+def precargar(modelo, keep_alive="30m", url=None):
+    """Carga el modelo en memoria sin generar texto (evita la espera de la primera respuesta)."""
+    return _request("/api/generate", {"model": modelo, "keep_alive": keep_alive}, url=url, timeout=300)

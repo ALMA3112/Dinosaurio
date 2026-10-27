@@ -31,7 +31,7 @@ CORS = {"Access-Control-Allow-Origin": "*",
 IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
 
 DEFAULT_SAMPLING = {"temperature": 1.0, "top_k": None, "top_p": 0.9}
-MAX_HISTORY = 8
+MAX_HISTORY = 6
 MAX_MSG_CHARS = 600
 MAX_DESC_CHARS = 3000
 
@@ -44,8 +44,10 @@ def config():
     return {
         "ollama_url": os.environ.get("OLLAMA_URL", "http://localhost:11434"),
         "ollama_model": os.environ.get("OLLAMA_MODEL", "mistral:7b"),
+        "chat_model": os.environ.get("OLLAMA_CHAT_MODEL") or os.environ.get("OLLAMA_MODEL", "mistral:7b"),
         "image_url": os.environ.get("IMAGE_API_URL", ""),
-        "image_size": int(os.environ.get("IMAGE_SIZE", "1024")),
+        "image_size": int(os.environ.get("IMAGE_SIZE", "768")),
+        "image_steps": int(os.environ.get("IMAGE_STEPS", "22")),
     }
 
 
@@ -103,15 +105,14 @@ def build_chat_system(nombre, descripcion):
         f"Eres {nombre}, un dinosaurio ficticio que conversa con un visitante de la Isla de los Dinosaurios.\n"
         "Esta es tu identidad. Es un hecho: nunca la contradigas, solo puedes ampliarla con detalles compatibles.\n\n"
         f"{descripcion}\n\n"
-        "Reglas: habla siempre en primera persona y en español; sé curioso y amable, con carácter de dinosaurio; "
-        "responde en un máximo de 4 frases; no digas que eres una IA ni un modelo de lenguaje; si te preguntan algo "
-        "que tu identidad no cubre, inventa un detalle coherente con ella; si te piden algo ajeno a tu mundo "
-        "(política, programación, etc.), responde brevemente desde tu vida de dinosaurio."
+        "Reglas: habla en primera persona y en español, con carácter de dinosaurio, curioso y amable; responde en "
+        "2 o 3 frases cortas (máximo 60 palabras); no digas que eres una IA; si te preguntan algo que tu identidad "
+        "no cubre, inventa un detalle coherente con ella; si te piden algo ajeno a tu mundo, responde brevemente "
+        "desde tu vida de dinosaurio."
     )
 
 
-INTRO_INSTRUCCION = ("Un visitante acaba de llegar. Preséntate: di tu nombre, cómo eres y dónde vives, "
-                     "en 3 o 4 frases, hablando en primera persona.")
+INTRO_INSTRUCCION = ("Un visitante acaba de llegar. Preséntate en 2 frases cortas: tu nombre, cómo eres y dónde vives.")
 
 
 # ------------------------------------------------------------------ endpoints
@@ -121,7 +122,7 @@ def api_estado(_data=None):
     try:
         modelos = [m["name"] for m in oc.list_models(c["ollama_url"], timeout=8)]
         out["ollama"] = {"ok": True, "version": oc.version(c["ollama_url"], timeout=8),
-                         "modelo_instalado": c["ollama_model"] in modelos}
+                         "modelo_instalado": c["ollama_model"] in modelos and c["chat_model"] in modelos}
     except Exception as e:  # noqa: BLE001
         out["ollama"] = {"ok": False, "error": str(e)[:200]}
     try:
@@ -164,11 +165,13 @@ def api_nombre(data):
 def api_identidad(data):
     c = config()
     nombre = clean_name(data.get("nombre"))
-    res = oc.generar_identidad(nombre, c["ollama_model"], url=c["ollama_url"])
+    seed = int.from_bytes(os.urandom(2), "big")
+    res = oc.generar_identidad_app(nombre, c["ollama_model"], seed=seed, url=c["ollama_url"])
     if not res["ok"]:
         raise oc.OllamaError("Ollama no devolvió una identidad válida; intente de nuevo.")
     return {"nombre": nombre, "campos": res["campos"], "descripcion": res["descripcion"],
-            "modelo_ollama": c["ollama_model"], "intentos": res["intentos"], "segundos": round(res["total_s"], 1)}
+            "prompt_imagen": res["prompt_imagen"], "modelo_ollama": c["ollama_model"],
+            "intentos": res["intentos"], "segundos": round(res["total_s"], 1)}
 
 
 def api_imagen(data):
@@ -178,11 +181,15 @@ def api_imagen(data):
     if not isinstance(campos, dict) or not campos.get("apariencia"):
         raise BadRequest("Falta 'campos' con la identidad del dinosaurio.")
     campos = {k: str(v)[:800] for k, v in campos.items()}
-    prompt = oc.generar_prompt_imagen(nombre, campos, c["ollama_model"], url=c["ollama_url"])
+    dado = str(data.get("prompt_imagen") or "").strip()
+    if len(dado) >= 15:
+        prompt = oc.limpiar_prompt_imagen(dado, nombre)          # ya viene redactado por la misma llamada de identidad
+    else:                                                          # respaldo: pedir el prompt a Ollama (una llamada extra)
+        prompt = oc.generar_prompt_imagen(nombre, campos, c["ollama_model"], url=c["ollama_url"])
     seed = int(data.get("seed", int.from_bytes(os.urandom(2), "big")))
-    r = ic.generar(c["image_url"], prompt, seed=seed, size=c["image_size"])
+    r = ic.generar(c["image_url"], prompt, seed=seed, size=c["image_size"], steps=c["image_steps"])
     return {"image_base64": r["image_base64"], "mime": r.get("mime", "image/png"), "prompt": prompt, "seed": seed,
-            "size": c["image_size"], "segundos_imagen": r.get("seconds")}
+            "size": c["image_size"], "steps": c["image_steps"], "segundos_imagen": r.get("seconds")}
 
 
 def api_chat(data):
@@ -203,12 +210,21 @@ def api_chat(data):
         if not msgs or msgs[-1]["role"] != "user":
             raise BadRequest("El último mensaje debe ser del usuario.")
         show_image = quiere_ver_imagen(msgs[-1]["content"])
-    reply = oc.chat(c["ollama_model"], msgs, system=build_chat_system(nombre, descripcion), url=c["ollama_url"])
+    reply = oc.chat(c["chat_model"], msgs, system=build_chat_system(nombre, descripcion),
+                    num_predict=90 if intro else 130, url=c["ollama_url"])
     return {"reply": reply.strip(), "show_image": show_image}
 
 
+def api_calentar(_data=None):
+    """Precarga en memoria el/los modelos de Ollama para que la primera respuesta no espere la carga."""
+    c = config()
+    for m in {c["ollama_model"], c["chat_model"]}:
+        oc.precargar(m, url=c["ollama_url"])
+    return {"ok": True}
+
+
 POST_ROUTES = {"/api/nombre": api_nombre, "/api/identidad": api_identidad, "/api/imagen": api_imagen,
-               "/api/chat": api_chat}
+               "/api/chat": api_chat, "/api/calentar": api_calentar}
 GET_ROUTES = {"/api/estado": api_estado, "/api/modelo": api_modelo, "/api/dinosaurio-inicial": api_dinosaurio_inicial}
 
 

@@ -30,8 +30,10 @@ def health(url, timeout=8):
     return _request(url, "/health", timeout=timeout)
 
 
-def generar(url, prompt, seed=0, size=1024, negative_prompt=None, timeout=600):
+def generar(url, prompt, seed=0, size=1024, negative_prompt=None, steps=None, timeout=600):
     payload = {"prompt": prompt, "seed": int(seed), "size": int(size)}
+    if steps:
+        payload["steps"] = int(steps)
     if negative_prompt:
         payload["negative_prompt"] = negative_prompt
     r = _request(url, "/generate", payload, timeout=timeout)

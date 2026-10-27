@@ -1,0 +1,8 @@
+{
+  "rnn_type": "LSTM",
+  "hidden_size": 256,
+  "num_layers": 2,
+  "vocab_size": 29,
+  "emb_dim": 64,
+  "pad_id": 0
+}
