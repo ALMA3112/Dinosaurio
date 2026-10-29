@@ -5,93 +5,168 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Isla de los Dinosaurios</title>
 <style>
-:root{--bg:#0e1512;--card:#16211b;--card2:#1c2a22;--text:#e8efe9;--muted:#9db0a3;--accent:#e9a23b;--ok:#4fb286;--bad:#e5645b;--line:#27382e}
+:root{
+  --bg:#f3eee3;--paper:#fffdf8;--ink:#1e2b22;--muted:#6b786d;--green:#2f6b4f;--green-d:#1f4a37;
+  --orange:#d9822b;--line:#e4dccb;--soft:#f0e9d9;--bad:#b3402f;--ok:#2f9b63;
+  --serif:ui-serif,Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
-body{background:radial-gradient(1200px 600px at 10% -10%,#183024 0,var(--bg) 60%);color:var(--text);
- font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
-header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding:18px clamp(14px,4vw,40px)}
-h1{margin:0;font-size:clamp(1.3rem,3vw,1.9rem);letter-spacing:.3px}
-h1 span{color:var(--accent)}
-.right{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.pill{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:4px 12px;font-size:.82rem;cursor:pointer}
-.pill::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin-right:7px}
-.pill.ok::before{background:var(--ok)}.pill.bad::before{background:var(--bad)}
-button.primary{background:var(--accent);color:#1c1405;border:0;border-radius:10px;padding:10px 18px;font-weight:700;font-size:1rem;cursor:pointer}
-button.primary:hover:not(:disabled){filter:brightness(1.08)}
-button:disabled{opacity:.55;cursor:not-allowed}
-main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;padding:0 clamp(14px,4vw,40px) 40px}
-@media(max-width:900px){main{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
-.imgwrap{position:relative;width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--card2)}
-#dinoImg{width:100%;height:100%;object-fit:cover;display:block}
-.skeleton{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:var(--muted);
- background:linear-gradient(100deg,var(--card2) 30%,#25362b 50%,var(--card2) 70%);background-size:200% 100%;animation:sh 1.4s linear infinite}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);min-height:100vh}
+button{font:inherit;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+/* ---------- cabecera ---------- */
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;
+  padding:16px clamp(14px,4vw,40px);max-width:1280px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:12px;background:var(--green);display:grid;place-items:center;font-size:24px}
+.brand h1{margin:0;font:700 clamp(1.15rem,2.6vw,1.5rem)/1.1 var(--serif)}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:.85rem}
+.top-right{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.status{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--paper);color:var(--muted);
+  border-radius:999px;padding:6px 12px;font-size:.82rem}
+.status i{width:9px;height:9px;border-radius:50%;background:#b9b19c}
+.status.ok i{background:var(--ok)}.status.bad i{background:var(--bad)}
+.btn-primary{background:var(--green);color:#fff;border:0;border-radius:12px;padding:11px 20px;font-weight:700;
+  box-shadow:0 3px 0 var(--green-d)}
+.btn-primary:hover:not(:disabled){background:#357a5a}
+.btn-primary:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--green-d)}
+
+/* ---------- distribucion ---------- */
+.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start;
+  max-width:1280px;margin:0 auto;padding:6px clamp(14px,4vw,40px) 40px}
+@media(max-width:940px){.layout{grid-template-columns:1fr}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 28px rgba(60,50,20,.07);overflow:hidden}
+
+/* ---------- ficha ---------- */
+.stepper{padding:12px 16px;background:var(--soft);border-bottom:1px solid var(--line)}
+.stepper ol{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.stepper li{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--muted);background:var(--paper);
+  border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+.stepper li b{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:.7rem;
+  background:var(--line);color:var(--muted)}
+.stepper li.active{color:var(--ink);border-color:var(--orange)}
+.stepper li.active b{background:var(--orange);color:#fff;animation:pulse 1s infinite}
+.stepper li.done{color:var(--green-d);border-color:#bfd8c9;background:#eef6f0}
+.stepper li.done b{background:var(--ok);color:#fff}
+.stepper li.error{color:var(--bad);border-color:#e3b3aa}.stepper li.error b{background:var(--bad);color:#fff}
+@keyframes pulse{50%{opacity:.45}}
+.photo{margin:0;background:radial-gradient(circle at 50% 40%,#fff 0,var(--soft) 100%);display:grid;place-items:center;
+  aspect-ratio:1/1;max-height:460px;width:100%;position:relative}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.placeholder p{margin:0 0 12px;max-width:420px}
+.placeholder{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--muted);
+  background:linear-gradient(100deg,var(--soft) 30%,#f7f1e3 50%,var(--soft) 70%);background-size:200% 100%;animation:sh 1.5s linear infinite}
 @keyframes sh{to{background-position:-200% 0}}
-h2{margin:14px 0 2px;font-size:1.8rem;color:var(--accent)}
-.muted{color:var(--muted);font-size:.9rem;margin:0 0 10px}
-#progress{margin:10px 0;padding:12px 14px;background:var(--card2);border-radius:12px}
-#progress ol{margin:0;padding:0;list-style:none;display:grid;gap:6px}
-#progress li{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:.93rem}
-#progress li .dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--muted);flex:none}
-#progress li.active{color:var(--text)}#progress li.active .dot{border-color:var(--accent);background:var(--accent);animation:pulse 1s infinite}
-#progress li.done{color:var(--text)}#progress li.done .dot{border-color:var(--ok);background:var(--ok)}
-#progress li.error{color:var(--bad)}#progress li.error .dot{border-color:var(--bad);background:var(--bad)}
-@keyframes pulse{50%{opacity:.35}}
-dl{margin:12px 0 0}dt{font-weight:700;color:var(--accent);margin-top:12px;font-size:.9rem;text-transform:uppercase;letter-spacing:.5px}
-dd{margin:2px 0 0}
-details{margin-top:16px;background:var(--card2);border-radius:12px;padding:10px 14px}
-summary{cursor:pointer;font-weight:600}
-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.9rem}
-td{padding:4px 0;border-top:1px solid var(--line);vertical-align:top}td:first-child{color:var(--muted);width:46%;padding-right:8px}
-.chat{display:flex;flex-direction:column;min-height:0}
-.chat h3{margin:0 0 10px}
-#msgs{flex:1;min-height:340px;max-height:620px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px}
-.msg{max-width:88%;padding:10px 13px;border-radius:14px;white-space:pre-wrap;word-wrap:break-word}
-.msg.assistant{align-self:flex-start;background:var(--card2);border-top-left-radius:4px}
-.msg.user{align-self:flex-end;background:#2c5a45;border-top-right-radius:4px}
-.msg.error{align-self:center;background:#3a1f1d;color:#ffb4ad;font-size:.9rem}
-.msg img{display:block;width:min(260px,100%);border-radius:10px;margin-bottom:8px}
-.typing{color:var(--muted);font-style:italic}
-form{display:flex;gap:8px;margin-top:12px}
-input[type=text]{flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;font-size:1rem}
-input:focus,button:focus-visible,summary:focus-visible,.pill:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#3a1f1d;color:#ffb4ad;border:1px solid #6b3430;padding:10px 16px;border-radius:10px;max-width:min(92vw,560px);display:none;z-index:5}
+.titleblock{padding:18px 22px 4px}
+.titleblock h2{overflow-wrap:anywhere;margin:0;font:700 clamp(1.9rem,4vw,2.5rem)/1.1 var(--serif);color:var(--green-d)}
+.titleblock p{margin:6px 0 0;color:var(--muted);font-size:.9rem}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.chip{background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:.78rem;color:#4a5a4d}
+.tabs{display:flex;gap:4px;padding:14px 22px 0;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:8px 12px;color:var(--muted);font-weight:600}
+.tab.active{color:var(--green-d);border-bottom-color:var(--orange)}
+.pane{padding:6px 22px 22px}
+dl{margin:0}
+dt{margin-top:16px;font-size:.74rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--orange)}
+dd{margin:3px 0 0}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.92rem}
+td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{color:var(--muted);width:46%;padding-right:10px}
+.mono{font:.86rem/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--soft);border-radius:10px;padding:10px 12px;margin:12px 0 6px;word-break:break-word}
+.hint{color:var(--muted);font-size:.85rem;margin:0}
+
+/* ---------- chat ---------- */
+.chat{display:flex;flex-direction:column;height:min(84vh,780px);position:sticky;top:14px}
+@media(max-width:940px){.chat{position:static;height:600px}}
+.chat-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--soft)}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--green) center/cover;border:2px solid #fff;
+  box-shadow:0 0 0 1px var(--line);flex:none}
+.chat-head h3{margin:0;font:700 1.1rem/1.2 var(--serif)}
+.chat-head p{margin:0;font-size:.8rem;color:var(--muted)}
+#msgs{flex:1;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.msg{max-width:86%;padding:10px 14px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.assistant{align-self:flex-start;background:var(--soft);border:1px solid var(--line);border-bottom-left-radius:5px}
+.msg.user{align-self:flex-end;background:var(--green);color:#fff;border-bottom-right-radius:5px}
+.msg.error{align-self:center;background:#fbeae6;color:var(--bad);font-size:.88rem;border:1px solid #efc3ba}
+.msg img:not([src]){display:none}
+.msg img{display:block;width:min(270px,100%);aspect-ratio:1/1;object-fit:cover;border-radius:12px;margin-bottom:8px;background:#e7dfcb}
+.msg.typing{color:var(--muted);font-size:.9rem}
+.dots{display:inline-flex;gap:4px;margin-right:8px;vertical-align:middle}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bounce 1.1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
+.suggest{display:flex;flex-wrap:wrap;gap:7px;padding:6px 16px 0}
+.suggest button{background:var(--paper);border:1px solid var(--line);color:var(--green-d);border-radius:999px;padding:5px 12px;font-size:.84rem}
+.suggest button:hover:not(:disabled){background:var(--soft)}
+.composer{display:flex;gap:8px;padding:12px 16px 16px}
+.composer input{flex:1;min-width:0;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;font:inherit;color:var(--ink)}
+.composer input:disabled{background:var(--soft)}
+.composer button{background:var(--orange);color:#fff;border:0;border-radius:12px;padding:0 20px;font-weight:700}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#fff;color:var(--bad);border:1px solid #efc3ba;
+  padding:11px 16px;border-radius:12px;max-width:min(92vw,560px);display:none;z-index:9;box-shadow:0 8px 24px rgba(0,0,0,.15)}
 </style>
 </head>
 <body>
-<header>
-  <h1>Isla de los <span>Dinosaurios</span></h1>
-  <div class="right">
-    <button class="pill" id="pillOllama" title="Estado de Ollama (clic para revisar)">Ollama</button>
-    <button class="pill" id="pillImagen" title="Estado del generador de imágenes (clic para revisar)">Imágenes</button>
-    <button class="primary" id="btnNuevo">Nuevo Dinosaurio</button>
+<header class="top">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">🦖</div>
+    <div><h1>Isla de los Dinosaurios</h1><p>Especies ficticias creadas con IA</p></div>
+  </div>
+  <div class="top-right">
+    <button class="status" id="pillOllama" title="Estado de Ollama (clic para revisar)"><i></i><span>Ollama</span></button>
+    <button class="status" id="pillImagen" title="Estado del generador de imágenes (clic para revisar)"><i></i><span>Imágenes</span></button>
+    <button class="btn-primary" id="btnNuevo">+ Nuevo Dinosaurio</button>
   </div>
 </header>
 
-<main>
-  <section class="card" aria-live="polite">
-    <div class="imgwrap">
+<main class="layout">
+  <section class="panel" aria-label="Ficha del dinosaurio">
+    <div class="stepper" id="progress" hidden><ol id="steps"></ol></div>
+    <figure class="photo">
       <img id="dinoImg" alt="" hidden>
-      <div class="skeleton" id="imgSkeleton">Cargando dinosaurio…</div>
+      <div class="placeholder" id="imgSkeleton"><div><p id="imgMsg">Cargando dinosaurio…</p><button class="btn-primary" id="btnRetryImg" type="button" hidden>Reintentar imagen</button></div></div>
+    </figure>
+    <div class="titleblock">
+      <h2 id="dinoNombre">…</h2>
+      <p id="dinoSub"></p>
+      <div class="chips" id="chips"></div>
     </div>
-    <h2 id="dinoNombre">…</h2>
-    <p class="muted" id="dinoSub"></p>
-    <div id="progress" hidden><ol id="steps"></ol></div>
-    <dl id="campos"></dl>
-    <details>
-      <summary>Modelo que creó el nombre</summary>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="ficha" role="tab">Ficha</button>
+      <button class="tab" data-tab="modelo" role="tab">Modelo de nombres</button>
+      <button class="tab" data-tab="imagen" role="tab">Imagen</button>
+    </nav>
+    <div class="pane" id="tab-ficha"><dl id="campos"></dl></div>
+    <div class="pane" id="tab-modelo" hidden>
+      <p class="hint">Modelo recurrente de caracteres que creó el nombre (no se reentrena: solo se vuelve a muestrear).</p>
       <table id="modeloTabla"></table>
-    </details>
+    </div>
+    <div class="pane" id="tab-imagen" hidden>
+      <p class="hint">Instrucción enviada al modelo de imágenes. La imagen se genera una sola vez y se reutiliza en el chat.</p>
+      <div class="mono" id="promptTxt">—</div>
+      <p class="hint" id="promptMeta"></p>
+    </div>
   </section>
 
-  <section class="card chat">
-    <h3>Chat con <span id="chatNombre">…</span></h3>
+  <section class="panel chat" aria-label="Chat">
+    <div class="chat-head">
+      <div class="avatar" id="avatar"></div>
+      <div><h3 id="chatNombre">…</h3><p id="chatEstado">preparándose…</p></div>
+    </div>
     <div id="msgs" aria-live="polite"></div>
-    <form id="chatForm" autocomplete="off">
-      <input type="text" id="chatInput" placeholder="Escribe un mensaje…" maxlength="500" aria-label="Mensaje" disabled>
-      <button class="primary" id="btnEnviar" disabled>Enviar</button>
+    <div class="suggest" id="suggest">
+      <button type="button" data-q="Descríbete">Descríbete</button>
+      <button type="button" data-q="¿Qué comes?">¿Qué comes?</button>
+      <button type="button" data-q="¿Dónde vives?">¿Dónde vives?</button>
+      <button type="button" data-q="Cuéntame algo curioso de ti">Algo curioso</button>
+    </div>
+    <form class="composer" id="chatForm" autocomplete="off">
+      <input type="text" id="chatInput" placeholder="Disponible cuando termine la identidad…" maxlength="500" aria-label="Mensaje" disabled>
+      <button id="btnEnviar" disabled>Enviar</button>
     </form>
   </section>
 </main>
@@ -101,19 +176,19 @@ input:focus,button:focus-visible,summary:focus-visible,.pill:focus-visible{outli
 const API_BASE = '';   // mismo origen (servidor local o Lambda). Si el frontend se aloja aparte, ponga aquí la URL del backend.
 const LABELS = {apariencia:'Apariencia', habitat:'Hábitat', alimentacion:'Alimentación',
                 comportamiento:'Comportamiento', caracteristica_distintiva:'Característica distintiva'};
-const STEPS = ['Nombre (modelo de caracteres)', 'Identidad (Ollama)', 'Imagen (Stable Diffusion XL)', 'Presentación (Ollama)'];
-const state = {dino: null, imageSrc: null, chat: [], busy: false, chatBusy: false, usados: []};
+const STEPS = ['Nombre', 'Identidad', 'Imagen', 'Presentación'];
+const state = {dino: null, imageSrc: null, chat: [], usados: [], busy: false, epoch: 0,
+               chain: Promise.resolve(), pendingChat: 0, pendingImgs: [], prompt: null};
 const $ = id => document.getElementById(id);
 
+/* ---------- utilidades ---------- */
 async function api(path, body, timeoutMs = 900000) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), timeoutMs);
   try {
     const r = await fetch(API_BASE + path, {
-      method: body === undefined ? 'GET' : 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: ctl.signal
+      method: body === undefined ? 'GET' : 'POST', headers: {'Content-Type': 'application/json'},
+      body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal
     });
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(data.error || ('Error ' + r.status));
@@ -123,28 +198,33 @@ async function api(path, body, timeoutMs = 900000) {
     throw e;
   } finally { clearTimeout(timer); }
 }
-
 function toast(msg) {
   const t = $('toast'); t.textContent = msg; t.style.display = 'block';
-  clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = 'none', 9000);
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = 'none', 10000);
 }
+const num = v => (v === null || v === undefined) ? '—' : (typeof v === 'number' ? v.toLocaleString('es') : v);
 
 /* ---------- estado de los servicios ---------- */
 async function checkEstado() {
-  for (const id of ['pillOllama', 'pillImagen']) $(id).className = 'pill';
+  for (const id of ['pillOllama', 'pillImagen']) $(id).className = 'status';
   try {
-    const e = await api('/api/estado', undefined, 30000);
+    const e = await api('/api/estado', undefined, 40000);
     const o = e.ollama || {}, i = e.imagen || {};
-    $('pillOllama').className = 'pill ' + (o.ok && o.modelo_instalado ? 'ok' : 'bad');
-    $('pillOllama').textContent = 'Ollama · ' + e.modelo_ollama;
-    $('pillOllama').title = o.ok ? (o.modelo_instalado ? 'Ollama ' + o.version : 'Ollama responde, pero el modelo no está instalado') : (o.error || 'Sin conexión');
-    $('pillImagen').className = 'pill ' + (i.ok ? 'ok' : 'bad');
-    $('pillImagen').textContent = 'Imágenes' + (i.ok ? '' : ' · sin conexión');
+    const okO = o.ok && o.modelo_instalado;
+    $('pillOllama').className = 'status ' + (okO ? 'ok' : 'bad');
+    $('pillOllama').lastChild.textContent = 'Ollama · ' + e.modelo_ollama;
+    $('pillOllama').title = o.ok ? (o.modelo_instalado ? 'Ollama ' + o.version : 'Ollama responde, pero falta el modelo') : (o.error || 'Sin conexión');
+    $('pillImagen').className = 'status ' + (i.ok ? 'ok' : 'bad');
+    $('pillImagen').lastChild.textContent = i.ok ? 'Imágenes' : 'Imágenes · sin conexión';
     $('pillImagen').title = i.ok ? ('Modelo: ' + i.modelo) : (i.error || 'Sin conexión');
+    if (!okO) toast('Ollama: ' + (o.error || 'falta el modelo en el servidor'));
   } catch (err) { toast('No se pudo consultar el estado: ' + err.message); }
 }
 
-/* ---------- tarjeta del dinosaurio ---------- */
+/* ---------- ficha ---------- */
+function setHeader(nombre, sub) {
+  $('dinoNombre').textContent = nombre; $('chatNombre').textContent = nombre; $('dinoSub').textContent = sub || '';
+}
 function renderCampos(campos) {
   const dl = $('campos'); dl.replaceChildren();
   if (!campos) return;
@@ -163,128 +243,205 @@ function fmtMuestreo(m) {
   if (m.top_p) p.push('top-p=' + m.top_p);
   return p.join(', ');
 }
-function renderModelo(m, muestreo) {
-  const n = v => (v === null || v === undefined) ? '—' : (typeof v === 'number' ? v.toLocaleString('es') : v);
-  const filas = [
-    ['Configuración', m.configuracion], ['Arquitectura', m.arquitectura], ['Capas', m.capas],
-    ['Estado oculto', m.estado_oculto], ['Parámetros', m.parametros], ['Épocas de entrenamiento', m.epocas],
-    ['Optimizador', m.optimizador], ['Función de pérdida', m.funcion_perdida],
-    ['Mejor pérdida de validación', m.mejor_perdida_validacion != null ? Number(m.mejor_perdida_validacion).toFixed(3) + ' (época ' + n(m.mejor_epoca) + ')' : '—'],
-    ['Vocabulario (tokens)', m.vocabulario], ['Longitud máxima T', m.longitud_maxima_T],
-    ['Muestreo usado para este nombre', fmtMuestreo(muestreo)]
-  ];
+function renderModelo(m, muestreo, extra) {
+  const val = m.mejor_perdida_validacion != null ? Number(m.mejor_perdida_validacion).toFixed(3) + ' (época ' + num(m.mejor_epoca) + ')' : '—';
+  const filas = [['Configuración', m.configuracion], ['Arquitectura', m.arquitectura], ['Capas', m.capas],
+    ['Estado oculto', m.estado_oculto], ['Parámetros', m.parametros], ['Épocas', m.epocas], ['Optimizador', m.optimizador],
+    ['Función de pérdida', m.funcion_perdida], ['Mejor pérdida de validación', val], ['Vocabulario (tokens)', m.vocabulario],
+    ['Longitud máxima T', m.longitud_maxima_T], ['Muestreo de este nombre', fmtMuestreo(muestreo)]];
   const t = $('modeloTabla'); t.replaceChildren();
   for (const [k, v] of filas) {
-    const tr = document.createElement('tr');
-    const a = document.createElement('td'); a.textContent = k;
-    const b = document.createElement('td'); b.textContent = n(v);
-    tr.append(a, b); t.append(tr);
+    const tr = document.createElement('tr'), a = document.createElement('td'), b = document.createElement('td');
+    a.textContent = k; b.textContent = num(v); tr.append(a, b); t.append(tr);
   }
+  const chips = $('chips'); chips.replaceChildren();
+  const add = txt => { const c = document.createElement('span'); c.className = 'chip'; c.textContent = txt; chips.append(c); };
+  add('Nombre: ' + (m.arquitectura || 'RNN') + ' ' + (m.capas || '?') + '×' + (m.estado_oculto || '?'));
+  add('Texto: ' + (extra.textoModelo || '—'));
+  add('Imagen: ' + (extra.imagenModelo || 'SDXL'));
+}
+function renderPrompt(prompt, meta) {
+  $('promptTxt').textContent = prompt || '(se mostrará al generar la imagen)';
+  $('promptMeta').textContent = meta || '';
 }
 function showImage(src) {
   const img = $('dinoImg');
   if (!src) { img.hidden = true; $('imgSkeleton').hidden = false; return; }
-  img.src = src; img.alt = 'Imagen de ' + (state.dino ? state.dino.nombre : 'dinosaurio'); img.hidden = false; $('imgSkeleton').hidden = true;
+  img.onload = () => { $('imgSkeleton').hidden = true; };
+  img.onerror = () => { $('imgSkeleton').hidden = false; $('imgMsg').textContent = 'No se pudo mostrar la imagen.'; };
+  img.alt = 'Imagen de ' + (state.dino ? state.dino.nombre : 'dinosaurio'); img.src = src; img.hidden = false;
+  $('avatar').style.backgroundImage = 'url("' + src + '")';
 }
-function setHeader(nombre, sub) {
-  $('dinoNombre').textContent = nombre; $('chatNombre').textContent = nombre; $('dinoSub').textContent = sub || '';
-}
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === b));
+  for (const id of ['ficha', 'modelo', 'imagen']) $('tab-' + id).hidden = (id !== b.dataset.tab);
+}));
 
 /* ---------- progreso ---------- */
 function initSteps() {
   const ol = $('steps'); ol.replaceChildren();
   STEPS.forEach((s, i) => {
     const li = document.createElement('li'); li.id = 'step' + i;
-    const dot = document.createElement('span'); dot.className = 'dot';
-    const tx = document.createElement('span'); tx.textContent = s;
-    li.append(dot, tx); ol.append(li);
+    const b = document.createElement('b'); b.textContent = i + 1;
+    const t = document.createElement('span'); t.textContent = s; li.append(b, t); ol.append(li);
   });
   $('progress').hidden = false;
 }
 function setStep(i, st) { const li = $('step' + i); if (li) li.className = st; }
 
-/* ---------- chat ---------- */
+/* ---------- chat (siempre se puede escribir; las respuestas se encolan) ---------- */
+const chatReady = () => !!(state.dino && state.dino.descripcion);
+function updateChatUI() {
+  const ready = chatReady();
+  $('chatInput').disabled = !ready; $('btnEnviar').disabled = !ready;
+  $('chatInput').placeholder = ready ? 'Escribe un mensaje…' : 'Disponible cuando termine la identidad…';
+  document.querySelectorAll('#suggest button').forEach(b => b.disabled = !ready);
+  $('chatEstado').textContent = !ready ? 'preparándose…' : (state.pendingChat > 0 ? 'pensando…' : 'en línea');
+}
+function scrollDown() { const m = $('msgs'); m.scrollTop = m.scrollHeight; }
+function fillBubble(el, role, text, withImage) {
+  el.className = 'msg ' + role; el.replaceChildren();
+  if (withImage) {
+    const im = document.createElement('img'); im.alt = 'Imagen de ' + state.dino.nombre;
+    if (state.imageSrc) im.src = state.imageSrc; else state.pendingImgs.push(im);
+    el.append(im);
+  }
+  const p = document.createElement('span'); p.textContent = text; el.append(p); scrollDown();
+}
 function addMsg(role, text, withImage) {
-  const d = document.createElement('div'); d.className = 'msg ' + role;
-  if (withImage && state.imageSrc) { const im = document.createElement('img'); im.src = state.imageSrc; im.alt = 'Imagen de ' + state.dino.nombre; d.append(im); }
-  const p = document.createElement('span'); p.textContent = text; d.append(p);
-  $('msgs').append(d); $('msgs').scrollTop = $('msgs').scrollHeight; return d;
+  const d = document.createElement('div'); fillBubble(d, role, text, withImage); $('msgs').append(d); scrollDown(); return d;
 }
-function typing() { return addMsg('assistant typing', 'escribiendo…'); }
-function updateChatEnabled() {
-  const ok = state.dino && state.dino.descripcion && !state.busy && !state.chatBusy;
-  $('chatInput').disabled = !ok; $('btnEnviar').disabled = !ok;
+function typingBubble() {
+  const d = document.createElement('div'); d.className = 'msg assistant typing';
+  const dots = document.createElement('span'); dots.className = 'dots'; dots.innerHTML = '<i></i><i></i><i></i>';
+  const txt = document.createElement('span'); txt.textContent = 'escribiendo…';
+  d.append(dots, txt); $('msgs').append(d); scrollDown();
+  const t0 = Date.now();
+  d._timer = setInterval(() => { txt.textContent = 'escribiendo… ' + Math.round((Date.now() - t0) / 1000) + ' s'; }, 1000);
+  return d;
 }
-async function presentar() {
-  const t = typing(); state.chatBusy = true; updateChatEnabled();
-  try {
-    const r = await api('/api/chat', {nombre: state.dino.nombre, descripcion: state.dino.descripcion, messages: [], intro: true});
-    t.remove(); addMsg('assistant', r.reply, r.show_image); state.chat.push({role: 'assistant', content: r.reply});
-  } catch (e) {
-    t.remove(); addMsg('error', 'No pude conectar con Ollama para la presentación: ' + e.message);
-    addMsg('assistant', 'Soy ' + state.dino.nombre + '.', true);
-  } finally { state.chatBusy = false; updateChatEnabled(); }
+function enqueue(task) {
+  state.pendingChat++; updateChatUI();
+  const run = state.chain.then(task).catch(() => {}).finally(() => { state.pendingChat--; updateChatUI(); });
+  state.chain = run; return run;
 }
-$('chatForm').addEventListener('submit', async ev => {
-  ev.preventDefault();
-  const txt = $('chatInput').value.trim();
-  if (!txt || state.busy || state.chatBusy || !state.dino || !state.dino.descripcion) return;
-  $('chatInput').value = ''; addMsg('user', txt); state.chat.push({role: 'user', content: txt});
-  state.chatBusy = true; updateChatEnabled(); const t = typing();
-  try {
-    const r = await api('/api/chat', {nombre: state.dino.nombre, descripcion: state.dino.descripcion, messages: state.chat.slice(-8)});
-    t.remove(); addMsg('assistant', r.reply, r.show_image); state.chat.push({role: 'assistant', content: r.reply});
-  } catch (e) {
-    t.remove(); state.chat.pop(); addMsg('error', 'Error: ' + e.message);
-  } finally { state.chatBusy = false; updateChatEnabled(); $('chatInput').focus(); }
-});
+function presentar() {
+  const epoch = state.epoch, dino = state.dino, bubble = typingBubble();
+  return enqueue(async () => {
+    if (epoch !== state.epoch) return;
+    try {
+      const r = await api('/api/chat', {nombre: dino.nombre, descripcion: dino.descripcion, messages: [], intro: true});
+      clearInterval(bubble._timer); if (epoch !== state.epoch) return;
+      fillBubble(bubble, 'assistant', r.reply, r.show_image); state.chat.unshift({role: 'assistant', content: r.reply});
+    } catch (e) {
+      clearInterval(bubble._timer); if (epoch !== state.epoch) return;
+      fillBubble(bubble, 'assistant', 'Soy ' + dino.nombre + '.', true);
+      addMsg('error', 'La presentación falló: ' + e.message);
+    }
+  });
+}
+function enviar(texto) {
+  texto = (texto || '').trim();
+  if (!texto || !chatReady()) return;
+  addMsg('user', texto);
+  const um = {role: 'user', content: texto}; state.chat.push(um);
+  const epoch = state.epoch, dino = state.dino, bubble = typingBubble();
+  enqueue(async () => {
+    const i = state.chat.indexOf(um);
+    if (epoch !== state.epoch || i < 0) { clearInterval(bubble._timer); return; }
+    try {
+      // cada mensaje se responde por separado, con la conversación hasta ese mensaje
+      const r = await api('/api/chat', {nombre: dino.nombre, descripcion: dino.descripcion, messages: state.chat.slice(0, i + 1).slice(-6)});
+      clearInterval(bubble._timer); if (epoch !== state.epoch) return;
+      fillBubble(bubble, 'assistant', r.reply, r.show_image);
+      state.chat.splice(state.chat.indexOf(um) + 1, 0, {role: 'assistant', content: r.reply});
+    } catch (e) {
+      clearInterval(bubble._timer); if (epoch !== state.epoch) return;
+      fillBubble(bubble, 'error', 'No pude responder: ' + e.message, false);
+    }
+  });
+}
+$('chatForm').addEventListener('submit', ev => { ev.preventDefault(); const t = $('chatInput').value; $('chatInput').value = ''; enviar(t); });
+document.querySelectorAll('#suggest button').forEach(b => b.addEventListener('click', () => enviar(b.dataset.q)));
+function resolverImagenesPendientes(ok) {
+  state.pendingImgs.forEach(im => { if (ok && state.imageSrc) im.src = state.imageSrc; else im.remove(); });
+  state.pendingImgs = [];
+}
 
 /* ---------- carga inicial: dinosaurio guardado de las fases 1-4 ---------- */
 async function init() {
-  checkEstado();
+  updateChatUI(); checkEstado();
+  api('/api/calentar', {}, 300000).catch(() => {});          // precarga el modelo de Ollama para que responda antes
   try {
     const d = await api('/api/dinosaurio-inicial', undefined, 30000);
     state.dino = {nombre: d.nombre, campos: d.campos, descripcion: d.descripcion};
     state.imageSrc = d.imagen_url; state.usados.push(d.nombre);
-    setHeader(d.nombre, 'Dinosaurio guardado · descripción de ' + d.modelo_ollama + ' · imagen de ' + (d.modelo_imagen || 'modelo de imágenes'));
-    renderCampos(d.campos); renderModelo(d.modelo_caracteres, d.muestreo_nombre); showImage(d.imagen_url);
-    updateChatEnabled(); presentar();
+    setHeader(d.nombre, 'Dinosaurio guardado de las fases 1 a 4');
+    renderCampos(d.campos);
+    renderModelo(d.modelo_caracteres, d.muestreo_nombre, {textoModelo: d.modelo_ollama, imagenModelo: 'SDXL'});
+    renderPrompt(d.prompt_imagen, 'Modelo: ' + (d.modelo_imagen || '—') + ' · semilla ' + num(d.seed));
+    showImage(d.imagen_url); updateChatUI(); presentar();
   } catch (e) { toast(e.message); $('dinoNombre').textContent = 'Sin dinosaurio'; }
 }
 
-/* ---------- Nuevo Dinosaurio: nombre -> identidad -> imagen -> presentación (sin reentrenar) ---------- */
+/* ---------- imagen (se usa en Nuevo Dinosaurio y en el reintento) ---------- */
+async function pedirImagen(epoch) {
+  const rq = state.lastImgReq;
+  $('btnRetryImg').hidden = true; setStep(2, 'active');
+  showImage(null); $('imgMsg').textContent = 'Generando la imagen de ' + rq.nombre + '… (15 a 40 s)';
+  try {
+    const im = await api('/api/imagen', rq);
+    if (epoch !== state.epoch) return;
+    state.imageSrc = 'data:' + im.mime + ';base64,' + im.image_base64; showImage(state.imageSrc);
+    resolverImagenesPendientes(true); setStep(2, 'done');
+    renderPrompt(im.prompt, 'Semilla ' + im.seed + ' · ' + im.size + 'px · ' + im.steps + ' pasos');
+    setHeader(rq.nombre, 'Imagen generada una sola vez y reutilizada en el chat');
+  } catch (e) {
+    if (epoch !== state.epoch) return;
+    setStep(2, 'error'); $('progress').hidden = false; $('imgSkeleton').hidden = false;
+    $('imgMsg').textContent = 'No se pudo generar la imagen: ' + e.message;
+    $('btnRetryImg').hidden = false; toast('Imagen: ' + e.message);
+  }
+}
+$('btnRetryImg').addEventListener('click', () => { state.lastImgReq.seed = undefined; pedirImagen(state.epoch); });
+
+/* ---------- Nuevo Dinosaurio: nombre -> identidad -> (imagen || presentación), sin reentrenar ---------- */
 async function nuevoDino() {
   if (state.busy) return;
-  state.busy = true; $('btnNuevo').disabled = true; updateChatEnabled();
-  state.chat = []; $('msgs').replaceChildren(); initSteps();
+  state.busy = true; state.epoch++; $('btnNuevo').disabled = true;
+  state.chat = []; state.pendingImgs = []; $('msgs').replaceChildren(); initSteps();
   let paso = 0;
   try {
     setStep(0, 'active');
     const n = await api('/api/nombre', {excluir: state.usados});
     state.usados.push(n.nombre); setStep(0, 'done');
     state.dino = {nombre: n.nombre, campos: null, descripcion: null}; state.imageSrc = null;
-    setHeader(n.nombre, 'Generando identidad e imagen… puede tardar unos minutos.');
-    renderCampos(null); renderModelo(n.modelo_caracteres, n.muestreo); showImage(null);
-    $('imgSkeleton').textContent = 'Creando a ' + n.nombre + '…';
+    $('avatar').style.backgroundImage = ''; updateChatUI();
+    setHeader(n.nombre, 'Creando identidad e imagen…');
+    renderCampos(null); showImage(null); $('btnRetryImg').hidden = true; $('imgMsg').textContent = 'Creando a ' + n.nombre + '…';
+    renderPrompt(null, ''); renderModelo(n.modelo_caracteres, n.muestreo, {textoModelo: '…', imagenModelo: 'SDXL'});
 
     paso = 1; setStep(1, 'active');
     const id = await api('/api/identidad', {nombre: n.nombre});
     state.dino = {nombre: id.nombre, campos: id.campos, descripcion: id.descripcion};
+    state.lastImgReq = {nombre: n.nombre, campos: id.campos, prompt_imagen: id.prompt_imagen};
     renderCampos(id.campos); setStep(1, 'done');
+    renderModelo(n.modelo_caracteres, n.muestreo, {textoModelo: id.modelo_ollama, imagenModelo: 'SDXL'});
+    renderPrompt(id.prompt_imagen, 'Se generará con el modelo de imágenes…');
+    setHeader(n.nombre, 'Generando la imagen…'); updateChatUI();
 
-    paso = 2; setStep(2, 'active');
-    const im = await api('/api/imagen', {nombre: n.nombre, campos: id.campos});
-    state.imageSrc = 'data:' + im.mime + ';base64,' + im.image_base64; showImage(state.imageSrc); setStep(2, 'done');
-    setHeader(n.nombre, 'Descripción de ' + id.modelo_ollama + ' · imagen generada una sola vez y reutilizada en el chat');
-
-    paso = 3; setStep(3, 'active');
-    state.busy = false; await presentar(); setStep(3, 'done');
+    // la imagen (Colab) y la presentación (Ollama) corren en paralelo y ya se puede escribir en el chat
+    paso = 2; setStep(3, 'active');
+    const epoch = state.epoch;
+    const pres = presentar().then(() => setStep(3, 'done'));
+    await Promise.all([pres, pedirImagen(epoch)]);
   } catch (e) {
-    setStep(paso, 'error'); toast('Falló un paso: ' + e.message + ' — pulse «Nuevo Dinosaurio» para reintentar.');
-    if (state.dino && !state.dino.descripcion) $('imgSkeleton').textContent = 'No se pudo completar. Intente de nuevo.';
+    setStep(paso, 'error');
+    toast('Falló un paso: ' + e.message + ' — pulse «Nuevo Dinosaurio» para reintentar.');
+    if (state.dino && !state.dino.descripcion) $('imgMsg').textContent = 'No se pudo completar. Intente de nuevo.';
   } finally {
-    state.busy = false; $('btnNuevo').disabled = false; updateChatEnabled();
-    setTimeout(() => { if (!document.querySelector('#steps .error')) $('progress').hidden = true; }, 4000);
+    state.busy = false; $('btnNuevo').disabled = false; updateChatUI();
+    setTimeout(() => { if (!document.querySelector('#steps .error')) $('progress').hidden = true; }, 5000);
   }
 }
 $('btnNuevo').addEventListener('click', nuevoDino);

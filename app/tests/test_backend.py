@@ -51,8 +51,12 @@ class FakeHandler(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         LOG.append((self.path, body))
         if self.path == "/api/generate":
-            if body.get("format") == "json":
-                self._send({"response": json.dumps(GOOD), "eval_count": 100, "eval_duration": int(2e10)})
+            if not body.get("prompt"):                       # precarga del modelo
+                self._send({"done": True, "done_reason": "load"})
+            elif body.get("format") == "json":
+                self._send({"response": json.dumps({**GOOD, "prompt_imagen": "Zorvasaurus, a dinosaur, full body side "
+                            "view, blue crest, highly detailed paleoart, natural lighting"}),
+                            "eval_count": 100, "eval_duration": int(2e10)})
             else:
                 self._send({"response": '"Prompt: Zorvasaurus, a dinosaur, full body side view, blue crest, '
                                         'highly detailed paleoart, natural lighting"'})
@@ -135,6 +139,7 @@ class T(unittest.TestCase):
         self.assertEqual(s, 200)
         self.assertEqual(set(d["campos"]), set(GOOD))
         self.assertIn("Apariencia:", d["descripcion"])
+        self.assertTrue(d["prompt_imagen"].startswith("Zorvasaurus"))          # prompt de imagen en la misma llamada
 
     def test_imagen_prompt_y_png(self):
         s, d = self.call("POST", "/api/imagen", {"nombre": "Zorvasaurus", "campos": GOOD})
@@ -144,6 +149,39 @@ class T(unittest.TestCase):
         self.assertEqual(d["image_base64"], PNG_1PX)
         img_call = [b for p, b in LOG if p == "/generate"][-1]
         self.assertEqual(img_call["size"], 512)
+
+    def test_imagen_con_prompt_dado_no_llama_otra_vez_a_ollama(self):
+        n0 = len([1 for p, b in LOG if p == "/api/generate"])
+        s, d = self.call("POST", "/api/imagen", {"nombre": "Zorvasaurus", "campos": GOOD,
+                                                 "prompt_imagen": "Zorvasaurus, a dinosaur, blue crest"})
+        self.assertEqual(s, 200)
+        self.assertEqual(n0, len([1 for p, b in LOG if p == "/api/generate"]))
+        img_call = [b for p, b in LOG if p == "/generate"][-1]
+        self.assertEqual(img_call["steps"], 22)
+
+    def test_todas_las_llamadas_a_ollama_usan_las_mismas_opciones(self):
+        """Si num_ctx cambia entre peticiones, Ollama recarga el modelo (minutos en este disco)."""
+        del LOG[:]
+        base = {"nombre": "Zorvasaurus", "descripcion": "Apariencia: " + "x" * 60}
+        self.call("POST", "/api/calentar", {})
+        self.call("POST", "/api/identidad", {"nombre": "Zorvasaurus"})
+        self.call("POST", "/api/chat", {**base, "intro": True})
+        self.call("POST", "/api/chat", {**base, "messages": [{"role": "user", "content": "hola"}]})
+        self.call("POST", "/api/imagen", {"nombre": "Zorvasaurus", "campos": GOOD})      # puede pedir el prompt a Ollama
+        ollama = [b for p, b in LOG if p in ("/api/generate", "/api/chat")]
+        self.assertGreaterEqual(len(ollama), 4)
+        for b in ollama:
+            self.assertEqual(b["options"]["num_ctx"], 2048, b)
+            self.assertEqual(b["keep_alive"], -1, b)
+
+    def test_calentar_y_errores_legibles(self):
+        self.assertEqual(self.call("POST", "/api/calentar", {})[1]["ok"], True)
+        import ollama_client as oc
+        ngrok = "<html>ERR_NGROK_3200 The endpoint is offline</html>"
+        self.assertIn("apagado", oc.resumir_error_http(404, ngrok))
+        self.assertIn("ERR_NGROK_8012", oc.resumir_error_http(502, "ERR_NGROK_8012"))
+        self.assertIn("503", oc.resumir_error_http(503, "<p>Service Unavailable</p>"))
+        self.assertNotIn("<p>", oc.resumir_error_http(503, "<p>Service Unavailable</p>"))
 
     def test_chat_imagen_solo_cuando_corresponde(self):
         base = {"nombre": "Zorvasaurus", "descripcion": "Apariencia: " + "x" * 60}

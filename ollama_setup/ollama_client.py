@@ -14,6 +14,11 @@ import urllib.request
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434").rstrip("/")
 HEADERS = {"Content-Type": "application/json", "ngrok-skip-browser-warning": "true"}
 
+# IMPORTANTE: Ollama RECARGA el modelo (200+ s en este disco) si dos peticiones usan opciones de ejecucion distintas
+# (num_ctx, etc.). Por eso TODAS las peticiones (generate, chat, precarga, pruebas) usan exactamente estas opciones.
+RUNNER_OPTIONS = {"num_ctx": 2048}
+KEEP_ALIVE = -1          # un numero negativo = el modelo se queda en memoria (no se descarga por inactividad)
+
 CAMPOS = ["apariencia", "habitat", "alimentacion", "comportamiento", "caracteristica_distintiva"]
 ETIQUETAS = {
     "apariencia": "Apariencia",
@@ -33,6 +38,23 @@ class OllamaError(RuntimeError):
     pass
 
 
+def resumir_error_http(code, body):
+    """Convierte la respuesta de error (a veces una pagina HTML de ngrok) en una frase util."""
+    body = body or ""
+    m = re.search(r"ERR_NGROK_(\d+)", body)
+    if m:
+        causas = {"3200": "el túnel de ngrok está apagado o la URL es vieja (reinicie el túnel y actualice el .env)",
+                  "8012": "ngrok funciona pero no logra conectar con el servicio local (¿Ollama o la API de imágenes caída?)",
+                  "108": "la cuenta de ngrok ya tiene otra sesión abierta (use una cuenta distinta para cada túnel)"}
+        return f"HTTP {code} de ngrok (ERR_NGROK_{m.group(1)}): " + causas.get(m.group(1), "revise el túnel de ngrok")
+    texto = re.sub(r"<[^>]+>", " ", body)
+    texto = re.sub(r"\s+", " ", texto).strip()[:200]
+    if code == 503:
+        return (f"HTTP 503 (servicio no disponible): {texto or 'sin detalle'}. Suele ser Ollama ocupado o cargando "
+                "el modelo, o un proxy del sistema; espere un minuto y reintente.")
+    return f"HTTP {code}: {texto or 'sin detalle'}"
+
+
 def _request(path, payload=None, url=None, timeout=900):
     base = (url or OLLAMA_URL).rstrip("/")
     data = json.dumps(payload).encode("utf-8") if payload is not None else None
@@ -42,7 +64,7 @@ def _request(path, payload=None, url=None, timeout=900):
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
-        raise OllamaError(f"Ollama respondió HTTP {e.code} en {path}: {e.read().decode('utf-8', 'ignore')[:300]}")
+        raise OllamaError(f"Ollama en {path}: " + resumir_error_http(e.code, e.read().decode("utf-8", "ignore")))
     except urllib.error.URLError as e:
         raise OllamaError(f"No se pudo conectar con Ollama en {base} ({e.reason}). "
                           "¿Está corriendo el contenedor? Ejecute ollama_setup/01_instalar_ollama.sh")
@@ -71,8 +93,8 @@ def info_modelo(modelo, url=None):
 
 
 def generate(modelo, prompt, system=None, fmt=None, temperature=0.7, num_predict=500,
-             seed=None, keep_alive="2m", url=None):
-    options = {"temperature": temperature, "num_predict": num_predict, "num_ctx": 2048}
+             seed=None, keep_alive=KEEP_ALIVE, url=None):
+    options = {"temperature": temperature, "num_predict": num_predict, **RUNNER_OPTIONS}
     if seed is not None:
         options["seed"] = seed
     payload = {"model": modelo, "prompt": prompt, "stream": False, "keep_alive": keep_alive, "options": options}
@@ -86,11 +108,11 @@ def generate(modelo, prompt, system=None, fmt=None, temperature=0.7, num_predict
     return r
 
 
-def chat(modelo, messages, system=None, temperature=0.6, num_predict=250, keep_alive="30m", num_ctx=2048, url=None):
+def chat(modelo, messages, system=None, temperature=0.6, num_predict=250, keep_alive=KEEP_ALIVE, url=None):
     """Conversacion (Fase 5). `system` lleva la identidad del dinosaurio como contexto."""
     msgs = ([{"role": "system", "content": system}] if system else []) + list(messages)
     payload = {"model": modelo, "messages": msgs, "stream": False, "keep_alive": keep_alive,
-               "options": {"temperature": temperature, "num_predict": num_predict, "num_ctx": num_ctx}}
+               "options": {"temperature": temperature, "num_predict": num_predict, **RUNNER_OPTIONS}}
     return _request("/api/chat", payload, url=url)["message"]["content"]
 
 
@@ -266,6 +288,7 @@ def generar_identidad_app(nombre, modelo, temperature=0.7, seed=42, max_intentos
             "intentos": max_intentos, "metrics": _metrics(ultimo), "total_s": total}
 
 
-def precargar(modelo, keep_alive="30m", url=None):
+def precargar(modelo, keep_alive=KEEP_ALIVE, url=None):
     """Carga el modelo en memoria sin generar texto (evita la espera de la primera respuesta)."""
-    return _request("/api/generate", {"model": modelo, "keep_alive": keep_alive}, url=url, timeout=300)
+    return _request("/api/generate", {"model": modelo, "keep_alive": keep_alive, "options": dict(RUNNER_OPTIONS)},
+                    url=url, timeout=300)

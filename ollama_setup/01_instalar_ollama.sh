@@ -27,7 +27,9 @@ if sudo docker ps -a --format '{{.Names}}' | grep -qx ollama; then
   echo "   El contenedor ya existia; iniciado."
 else
   sudo docker run -d --name ollama --restart unless-stopped \
-    -p 11434:11434 -v "$PERSIST/ollama:/root/.ollama" ollama/ollama:latest >/dev/null
+    -p 11434:11434 -v "$PERSIST/ollama:/root/.ollama" \
+    -e OLLAMA_KEEP_ALIVE=-1 -e OLLAMA_CONTEXT_LENGTH=2048 -e OLLAMA_MAX_LOADED_MODELS=2 -e OLLAMA_NUM_PARALLEL=1 \
+    ollama/ollama:latest >/dev/null
   echo "   Contenedor creado."
 fi
 
