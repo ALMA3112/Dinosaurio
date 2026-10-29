@@ -5,7 +5,12 @@
 set -euo pipefail
 MODEL="${1:-mistral:7b}"
 DATA="${OLLAMA_DATA:-/home/ec2-user/SageMaker/ollama}"
-curl -fs http://localhost:11434/api/version >/dev/null || { echo "Ollama no responde. Ejecute: bash ollama_setup/04_reiniciar_ollama.sh"; exit 1; }
+echo "== precalentar $MODEL ($(date -u +%H:%M:%S) UTC) =="
+for i in $(seq 1 90); do                      # espera hasta 3 min a que Ollama arranque (util al llamarlo desde el on-start)
+  curl -fs http://localhost:11434/api/version >/dev/null && break
+  [ "$i" -eq 90 ] && { echo "Ollama no responde. Ejecute: bash ollama_setup/04_reiniciar_ollama.sh"; exit 1; }
+  sleep 2
+done
 
 BLOB="$(MODEL="$MODEL" DATA="$DATA" python3 - << 'PY'
 import json, os

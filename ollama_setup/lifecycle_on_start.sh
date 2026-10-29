@@ -31,5 +31,13 @@ sleep 3
 # si el contenedor de Ollama ya existe (Fase 3), volver a levantarlo
 docker start ollama 2>/dev/null || echo "contenedor ollama aun no existe (se crea en la Fase 3)"
 
+# precalentar el modelo EN SEGUNDO PLANO (el on-start no puede pasar de 5 min). Usa el script del repo,
+# asi se actualiza con git pull sin tocar esta configuracion. El tunel de ngrok (si es permanente) vuelve solo.
+PRE=/home/ec2-user/SageMaker/Dinosaurio/ollama_setup/06_precalentar.sh
+if [ -f "$PRE" ]; then
+  nohup bash "$PRE" >> "$PERSIST/onstart.log" 2>&1 &
+  echo "precalentamiento del modelo iniciado en segundo plano"
+fi
+
 echo "Docker Root Dir: $(docker info 2>/dev/null | grep 'Docker Root Dir')"
 echo "=== on-start terminado ==="

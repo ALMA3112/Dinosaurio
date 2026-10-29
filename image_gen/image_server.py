@@ -134,10 +134,14 @@ def start_server(app, port=5000):
     raise RuntimeError("El servidor Flask no arranco")
 
 
-def start_tunnel(port, authtoken):
-    """Abre el tunel de ngrok (cuenta #2) y devuelve la URL publica https."""
+def start_tunnel(port, authtoken, domain=None):
+    """Abre el tunel de ngrok (cuenta #2) y devuelve la URL publica https.
+
+    Con `domain` (el "dev domain" gratuito de la cuenta, p. ej. algo.ngrok-free.dev) la URL es SIEMPRE la misma.
+    """
     from pyngrok import ngrok
 
     ngrok.set_auth_token(authtoken)
-    url = ngrok.connect(port, "http").public_url
+    opts = {"domain": domain.replace("https://", "").strip("/ ")} if domain else {}
+    url = ngrok.connect(port, "http", **opts).public_url
     return url.replace("http://", "https://")
