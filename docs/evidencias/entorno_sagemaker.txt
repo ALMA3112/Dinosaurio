@@ -1,0 +1,31 @@
+== Fecha ==
+Fri Oct 30 03:54:03 UTC 2026
+== SO ==
+NAME="Amazon Linux"
+VERSION="2023"
+ID="amzn"
+== CPU (nproc) ==
+4
+== RAM ==
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       8.3Gi       175Mi        90Mi       7.0Gi       6.7Gi
+== Disco persistente ==
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme1n1     89G   20G   64G  24% /home/ec2-user/SageMaker
+== Docker ==
+Docker version 25.0.14, build 0bab007
+Docker Root Dir (debe ser /home/ec2-user/SageMaker/docker):
+ Storage Driver: overlay2
+ Docker Root Dir: /home/ec2-user/SageMaker/docker
+== Lifecycle on-start ==
+   cargado en Ollama en 7 s
+NAME          ID              SIZE      PROCESSOR    CONTEXT    RUNNER      UNTIL   
+qwen2.5:3b    357c53fb659c    2.1 GB    100% CPU     2048       llamacpp    Forever    
+mistral:7b    6577803aa9a0    4.8 GB    100% CPU     2048       llamacpp    Forever    
+Modelos listos: ya puede abrir la app.
+== Marcador de persistencia ==
+persistencia ok
+== Python ==
+Python 3.10.22
+== Internet saliente ==
+ollama.com HTTP 200

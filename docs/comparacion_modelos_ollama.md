@@ -21,9 +21,9 @@ Dinosaurio: **Calalosaurus**. Mismo prompt, temperatura 0.7, semilla 42.
 **mistral:7b** (digest `6577803aa9a0`, 7.2B, cuantización Q4_K_M).
 
 ### Justificación (completar con sus palabras)
-- Coherencia entre los rasgos de las tres descripciones:
-- Calidad del español:
-- Velocidad en CPU (tokens por segundo):
+- Coherencia entre los rasgos de las tres descripciones: SOn bastante buenas las 3, pero la que mejor se ve es la de mistral
+- Calidad del español: E l español es bueno y se usa de forma coherente
+- Velocidad en CPU (tokens por segundo): de 4 a 8 
 
 ## Identidad generada
 Apariencia: El Calalosaurus posee una apariencia imponente, con un cuerpo alargado y una cola larga y robusta. Su espalda presenta una cresta dorsal prominente, similar a las colas de las mariposas. Sus patas delanteras tienen dedos con garras afiladas y largas, mientras que las patas traseras son más cortas y más fuertes para soportar su peso.
