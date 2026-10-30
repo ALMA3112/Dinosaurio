@@ -26,3 +26,5 @@ node_modules/
 # Pesos pesados de modelos (no versionar modelos de Ollama ni de difusion)
 *.gguf
 *.safetensors
+build/
+build/
